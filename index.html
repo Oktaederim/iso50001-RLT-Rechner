@@ -11,56 +11,60 @@
             font-family: 'Inter', sans-serif;
         }
         .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.5);
-            animation: fadeIn 0.3s;
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+            overflow: auto; background-color: rgba(0,0,0,0.5); animation: fadeIn 0.3s;
         }
         .modal-content {
-            background-color: #fefefe;
-            margin: 10% auto;
-            padding: 24px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 700px;
-            border-radius: 8px;
+            background-color: #fefefe; margin: 10% auto; padding: 24px; border: 1px solid #888;
+            width: 80%; max-width: 700px; border-radius: 8px;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             animation: slideIn 0.3s;
         }
         @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
         @keyframes slideIn { from {transform: translateY(-50px);} to {transform: translateY(0);} }
         .close-button {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
+            color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #results, #results * {
+                visibility: visible;
+            }
+            #results {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .no-print {
+                display: none;
+            }
         }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
 
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-        <header class="text-center mb-8">
+        <header class="text-center mb-8 no-print">
             <h1 class="text-3xl font-bold text-gray-900">Energiebedarfsrechner für RLT-Anlagen</h1>
             <p class="text-md text-gray-600 mt-2">Konform zur ISO 50001 für Heiz- und Lüftungsanlagen</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Eingabebereich -->
-            <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
+            <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md no-print">
                 <h2 class="text-xl font-semibold mb-4 border-b pb-2">1. Anlagendaten</h2>
                 
                 <div class="space-y-4">
                     <div>
                         <label for="anlageName" class="block text-sm font-medium text-gray-700">Anlagenbezeichnung</label>
                         <input type="text" id="anlageName" value="RLT Zentrale West" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="inventarNr" class="block text-sm font-medium text-gray-700">Inventarisierungsnummer</label>
+                        <input type="text" id="inventarNr" value="INV-RLT-0815" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div>
                         <label for="volumenstrom" class="block text-sm font-medium text-gray-700">Luftvolumenstrom (m³/h)</label>
@@ -112,14 +116,12 @@
                             <tr><th class="p-2">Tag</th><th class="p-2">Von (hh)</th><th class="p-2">Bis (hh)</th><th class="p-2">Modus</th></tr>
                         </thead>
                         <tbody id="betriebszeiten-body">
-                            <!-- Wird per JS befüllt -->
                         </tbody>
                     </table>
                 </div>
                 
                 <h3 class="text-lg font-medium text-gray-800 mt-6">Sonderzeiträume (Urlaub, Wartung etc.)</h3>
                 <div id="sonderzeitraeume" class="space-y-2 mt-2">
-                    <!-- Dynamisch befüllt -->
                 </div>
                 <button id="addSonderzeit" class="mt-2 text-sm bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded">
                     + Zeitraum hinzufügen
@@ -132,21 +134,26 @@
                     <p class="text-xs text-gray-500 mt-1">Format 1: `Datum;Temp` (z.B. `2023-01-01T00:00;2.5`)<br>Format 2: `Datum,...,Temp,...` (z.B. `2024-01-01 01:00:00,..,..,4.4,..`)</p>
                 </div>
 
-                <div class="mt-8 grid grid-cols-2 gap-3">
-                    <button id="calculateBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition duration-300 ease-in-out col-span-2">
+                <div class="mt-8 grid grid-cols-1 gap-3">
+                    <button id="calculateBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition duration-300 ease-in-out">
                         Berechnung durchführen
                     </button>
-                    <button id="resetBtn" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg">
-                        Eingaben zurücksetzen
-                    </button>
-                    <button id="infoBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">
-                        Info & Formeln
-                    </button>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button id="resetBtn" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg">
+                            Zurücksetzen
+                        </button>
+                        <button id="printBtn" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg">
+                            Drucken/PDF
+                        </button>
+                        <button id="infoBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">
+                            Info
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <!-- Ergebnisbereich -->
-            <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
+            <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md" id="results-container">
                 <h2 class="text-xl font-semibold mb-4 border-b pb-2">Ergebnisse & Protokoll</h2>
                 <div id="results" class="prose max-w-none">
                     <p class="text-gray-500">Bitte geben Sie alle Daten ein und starten Sie die Berechnung.</p>
@@ -207,6 +214,7 @@
             // DOM Elements
             const calculateBtn = document.getElementById('calculateBtn');
             const resetBtn = document.getElementById('resetBtn');
+            const printBtn = document.getElementById('printBtn');
             const infoBtn = document.getElementById('infoBtn');
             const modal = document.getElementById('infoModal');
             const closeModal = document.getElementById('closeModal');
@@ -257,6 +265,10 @@
                 if(confirm("Möchten Sie wirklich alle Eingaben zurücksetzen?")) {
                     location.reload();
                 }
+            });
+
+            printBtn.addEventListener('click', () => {
+                window.print();
             });
 
             infoBtn.addEventListener('click', () => modal.style.display = 'block');
@@ -315,7 +327,6 @@
                         mode: parseInt(document.getElementById(`mode${day}`).value)
                     };
                 });
-                // Adjust for JS Date.getDay() where Sunday is 0
                 const jsBetriebszeiten = {
                     0: betriebszeiten[6], 1: betriebszeiten[0], 2: betriebszeiten[1],
                     3: betriebszeiten[2], 4: betriebszeiten[3], 5: betriebszeiten[4], 6: betriebszeiten[5],
@@ -339,6 +350,7 @@
 
                 return {
                     anlageName: document.getElementById('anlageName').value,
+                    inventarNr: document.getElementById('inventarNr').value,
                     volumenstrom: parseFloat(document.getElementById('volumenstrom').value),
                     zuluftTemp: parseFloat(document.getElementById('zuluftTemp').value),
                     zuluftTempAbsenk: parseFloat(document.getElementById('zuluftTempAbsenk').value),
@@ -356,7 +368,6 @@
                 let lines = csvData.split('\n').filter(line => line.trim() !== '');
                 if (lines.length === 0) throw new Error("CSV-Datei ist leer.");
 
-                // Header-Erkennung und Spalten-Mapping
                 const header = lines[0].toLowerCase();
                 let separator = ';';
                 let timeCol = 0;
@@ -371,18 +382,16 @@
                     if (timeColIndex !== -1 && tempColIndex !== -1) {
                         timeCol = timeColIndex;
                         tempCol = tempColIndex;
-                        lines.shift(); // Header entfernen
+                        lines.shift(); 
                     } else {
-                         // Fallback für kommagetrennte Dateien ohne erwarteten Header
                          timeCol = 0;
                          tempCol = 6;
-                         // Prüfen, ob die erste Zeile wirklich ein Header ist
                          if (isNaN(parseFloat(lines[0].split(',')[tempCol]))) {
                              lines.shift();
                          }
                     }
                 } else if (isNaN(parseFloat(lines[0].split(';')[1]))) {
-                    lines.shift(); // Header bei Semikolon-Format entfernen
+                    lines.shift();
                 }
 
                 return lines.map(line => {
@@ -391,7 +400,6 @@
                     
                     const timestampStr = parts[timeCol].trim();
                     const tempStr = parts[tempCol].trim().replace(',', '.');
-
                     const timestamp = new Date(timestampStr.replace(' ', 'T'));
                     const temp = parseFloat(tempStr);
                     
@@ -409,7 +417,7 @@
 
                 for (const data of hourlyData) {
                     const { timestamp, temp: aussenTemp } = data;
-                    const month = timestamp.toISOString().slice(0, 7); // YYYY-MM
+                    const month = timestamp.toISOString().slice(0, 7);
                     if (!monthlyResults[month]) {
                         monthlyResults[month] = {
                             betriebsstunden: 0, heizstunden: 0, thermischeEnergie: 0,
@@ -417,8 +425,7 @@
                         };
                     }
 
-                    // 1. Betriebsmodus ermitteln
-                    let betriebsmodus = 0; // 0=Aus, 1=Normal, 2=Absenk
+                    let betriebsmodus = 0;
                     let aktuelleSollTemp = 0;
 
                     const sonder = inputs.sonderzeitraeume.find(z => timestamp >= z.start && timestamp <= z.end);
@@ -436,12 +443,11 @@
                     let q_therm = 0;
                     let p_el = 0;
 
-                    if (betriebsmodus > 0) { // 1=Normal or 2=Absenk
+                    if (betriebsmodus > 0) {
                         monthlyResults[month].betriebsstunden++;
                         monthlyResults[month].sumAussenTempInBetrieb += aussenTemp;
                         aktuelleSollTemp = (betriebsmodus === 1) ? inputs.zuluftTemp : inputs.zuluftTempAbsenk;
 
-                        // 2. Thermische Energie
                         let effektiveAussenTemp = aussenTemp;
                         if (inputs.wrgAktiv) {
                             effektiveAussenTemp = aussenTemp + (aktuelleSollTemp - aussenTemp) * inputs.wrgWirkungsgrad;
@@ -453,7 +459,6 @@
                             monthlyResults[month].heizstunden++;
                         }
                         
-                        // 3. Elektrische Energie
                         if (inputs.ventilatorAktiv) {
                             p_el = (inputs.volumenstrom / 3600) * inputs.sfpWert / 1000;
                         }
@@ -504,7 +509,6 @@
                 const gesamtEnergie = totalThermischeEnergie + totalElektrischeEnergie;
                 const avgAussenTemp = sumAussenTempGesamt / (totalBetriebsstunden || 1);
 
-                // Vergleichsrechnung
                 const avgCsvTemp = hourlyData.reduce((sum, val) => sum + val.temp, 0) / hourlyData.length;
                 let q_therm_vergleich = 0;
                 if (avgCsvTemp < inputs.heizgrenze) {
@@ -521,67 +525,69 @@
                 const gesamt_vergleich = q_therm_vergleich + p_el_vergleich;
 
                 resultContainer.innerHTML = `
-                    <h3 class="text-lg font-semibold">Protokoll für Anlage: ${inputs.anlageName}</h3>
-                    <p class="text-sm text-gray-600">Berechnungszeitraum: ${hourlyData[0].timestamp.toLocaleDateString('de-DE')} - ${hourlyData[hourlyData.length - 1].timestamp.toLocaleDateString('de-DE')}</p>
-                    
-                    <div class="my-6"><h4 class="font-semibold">Jahresübersicht</h4>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-2 text-center">
-                            <div class="bg-blue-50 p-3 rounded-lg"><div class="text-sm text-blue-800">Gesamtenergie</div><div class="text-2xl font-bold text-blue-900">${gesamtEnergie.toLocaleString('de-DE', { maximumFractionDigits: 0 })} kWh</div></div>
-                            <div class="bg-orange-50 p-3 rounded-lg"><div class="text-sm text-orange-800">davon thermisch</div><div class="text-2xl font-bold text-orange-900">${totalThermischeEnergie.toLocaleString('de-DE', { maximumFractionDigits: 0 })} kWh</div></div>
-                            <div class="bg-green-50 p-3 rounded-lg"><div class="text-sm text-green-800">davon elektrisch</div><div class="text-2xl font-bold text-green-900">${totalElektrischeEnergie.toLocaleString('de-DE', { maximumFractionDigits: 0 })} kWh</div></div>
-                            <div class="bg-gray-100 p-3 rounded-lg"><div class="text-sm text-gray-800">Betriebsstunden</div><div class="text-2xl font-bold text-gray-900">${totalBetriebsstunden.toLocaleString('de-DE')} h</div></div>
+                    <div id="print-area">
+                        <h3 class="text-lg font-semibold">Protokoll für Anlage: ${inputs.anlageName} (${inputs.inventarNr})</h3>
+                        <p class="text-sm text-gray-600">Berechnungszeitraum: ${hourlyData[0].timestamp.toLocaleDateString('de-DE')} - ${hourlyData[hourlyData.length - 1].timestamp.toLocaleDateString('de-DE')}</p>
+                        
+                        <div class="my-6"><h4 class="font-semibold">Jahresübersicht</h4>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-2 text-center">
+                                <div class="bg-blue-50 p-3 rounded-lg"><div class="text-sm text-blue-800">Gesamtenergie</div><div class="text-2xl font-bold text-blue-900">${gesamtEnergie.toLocaleString('de-DE', { maximumFractionDigits: 0 })} kWh</div></div>
+                                <div class="bg-orange-50 p-3 rounded-lg"><div class="text-sm text-orange-800">davon thermisch</div><div class="text-2xl font-bold text-orange-900">${totalThermischeEnergie.toLocaleString('de-DE', { maximumFractionDigits: 0 })} kWh</div></div>
+                                <div class="bg-green-50 p-3 rounded-lg"><div class="text-sm text-green-800">davon elektrisch</div><div class="text-2xl font-bold text-green-900">${totalElektrischeEnergie.toLocaleString('de-DE', { maximumFractionDigits: 0 })} kWh</div></div>
+                                <div class="bg-gray-100 p-3 rounded-lg"><div class="text-sm text-gray-800">Betriebsstunden</div><div class="text-2xl font-bold text-gray-900">${totalBetriebsstunden.toLocaleString('de-DE')} h</div></div>
+                            </div>
                         </div>
-                    </div>
 
-                    <h4 class="font-semibold mt-6">Monatliche Aufschlüsselung (Stundengenaue Berechnung)</h4>
-                    <div class="overflow-x-auto mt-2">
-                        <table class="min-w-full bg-white border">
-                            <thead class="bg-gray-100"><tr>
-                                <th class="py-2 px-4 text-left">Monat</th><th class="py-2 px-4 text-right">Betrieb [h]</th><th class="py-2 px-4 text-right">Heiz. [h]</th>
-                                <th class="py-2 px-4 text-right">Ø AT [°C]</th><th class="py-2 px-4 text-right">Q_th [kWh]</th><th class="py-2 px-4 text-right">P_el [kWh]</th>
-                                <th class="py-2 px-4 text-right">Gesamt [kWh]</th>
-                            </tr></thead>
-                            <tbody>${tableRows}
-                                <tr class="bg-gray-200 font-bold">
-                                    <td class="py-2 px-4">Gesamt</td><td class="py-2 px-4 text-right">${totalBetriebsstunden.toFixed(0)}</td>
-                                    <td class="py-2 px-4 text-right">${totalHeizstunden.toFixed(0)}</td><td class="py-2 px-4 text-right">${avgAussenTemp.toFixed(1)}</td>
-                                    <td class="py-2 px-4 text-right">${totalThermischeEnergie.toLocaleString('de-DE', { maximumFractionDigits: 0 })}</td>
-                                    <td class="py-2 px-4 text-right">${totalElektrischeEnergie.toLocaleString('de-DE', { maximumFractionDigits: 0 })}</td>
-                                    <td class="py-2 px-4 text-right">${gesamtEnergie.toLocaleString('de-DE', { maximumFractionDigits: 0 })}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="mt-6 p-4 bg-gray-50 rounded-lg border">
-                        <h4 class="font-semibold">Vergleichsrechnung (Plausibilitätsprüfung)</h4>
-                        <p class="text-sm text-gray-600">Berechnung mit Ø Außentemperatur (${avgCsvTemp.toFixed(1)}°C) und Gesamtbetriebsstunden. Annahme: Nur Normalbetrieb.</p>
-                        <div class="mt-2 grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
-                            <p><strong>Therm. Energie:</strong> ${q_therm_vergleich.toLocaleString('de-DE', {maximumFractionDigits: 0})} kWh</p>
-                            <p><strong>Elektr. Energie:</strong> ${p_el_vergleich.toLocaleString('de-DE', {maximumFractionDigits: 0})} kWh</p>
-                            <p><strong>Gesamt:</strong> ${gesamt_vergleich.toLocaleString('de-DE', {maximumFractionDigits: 0})} kWh</p>
-                        </div>
-                    </div>
-
-                    <details class="mt-6 text-sm"><summary class="cursor-pointer font-semibold">Eingabeparameter für dieses Protokoll</summary>
-                        <div class="mt-2 p-4 bg-gray-50 rounded-lg border text-xs">
-                            <ul class="list-disc list-inside">
-                                <li>Volumenstrom: ${inputs.volumenstrom} m³/h</li>
-                                <li>Soll-Zulufttemperatur (Normal/Absenk): ${inputs.zuluftTemp}°C / ${inputs.zuluftTempAbsenk}°C</li>
-                                <li>Heizgrenze: ${inputs.heizgrenze} °C</li>
-                                <li>WRG aktiv: ${inputs.wrgAktiv ? `Ja, ${inputs.wrgWirkungsgrad * 100}%` : 'Nein'}</li>
-                                <li>Ventilatorberechnung: ${inputs.ventilatorAktiv ? `Ja, SFP ${inputs.sfpWert}` : 'Nein'}</li>
-                            </ul>
-                        </div>
-                    </details>
-                    
-                    <details class="mt-2 text-sm"><summary class="cursor-pointer font-semibold">Stündliches Berechnungsprotokoll</summary>
-                        <div class="mt-2 p-4 bg-gray-50 rounded-lg border max-h-64 overflow-y-auto">
-                            <table class="w-full text-xs"><thead class="sticky top-0 bg-gray-200"><tr><th>Zeitstempel</th><th>AT [°C]</th><th>Modus</th><th>Q_th [kWh]</th><th>P_el [kWh]</th></tr></thead>
-                                <tbody>${hourlyCalcLog.map(log => `<tr><td>${log.timestamp}</td><td>${log.aussenTemp}</td><td>${log.betriebsmodus}</td><td>${log.q_therm}</td><td>${log.p_el}</td></tr>`).join('')}</tbody>
+                        <h4 class="font-semibold mt-6">Monatliche Aufschlüsselung (Stundengenaue Berechnung)</h4>
+                        <div class="overflow-x-auto mt-2">
+                            <table class="min-w-full bg-white border">
+                                <thead class="bg-gray-100"><tr>
+                                    <th class="py-2 px-4 text-left">Monat</th><th class="py-2 px-4 text-right">Betrieb [h]</th><th class="py-2 px-4 text-right">Heiz. [h]</th>
+                                    <th class="py-2 px-4 text-right">Ø AT [°C]</th><th class="py-2 px-4 text-right">Q_th [kWh]</th><th class="py-2 px-4 text-right">P_el [kWh]</th>
+                                    <th class="py-2 px-4 text-right">Gesamt [kWh]</th>
+                                </tr></thead>
+                                <tbody>${tableRows}
+                                    <tr class="bg-gray-200 font-bold">
+                                        <td class="py-2 px-4">Gesamt</td><td class="py-2 px-4 text-right">${totalBetriebsstunden.toFixed(0)}</td>
+                                        <td class="py-2 px-4 text-right">${totalHeizstunden.toFixed(0)}</td><td class="py-2 px-4 text-right">${avgAussenTemp.toFixed(1)}</td>
+                                        <td class="py-2 px-4 text-right">${totalThermischeEnergie.toLocaleString('de-DE', { maximumFractionDigits: 0 })}</td>
+                                        <td class="py-2 px-4 text-right">${totalElektrischeEnergie.toLocaleString('de-DE', { maximumFractionDigits: 0 })}</td>
+                                        <td class="py-2 px-4 text-right">${gesamtEnergie.toLocaleString('de-DE', { maximumFractionDigits: 0 })}</td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </div>
-                    </details>
+
+                        <div class="mt-6 p-4 bg-gray-50 rounded-lg border">
+                            <h4 class="font-semibold">Vergleichsrechnung (Plausibilitätsprüfung)</h4>
+                            <p class="text-sm text-gray-600">Berechnung mit Ø Außentemperatur (${avgCsvTemp.toFixed(1)}°C) und Gesamtbetriebsstunden. Annahme: Nur Normalbetrieb.</p>
+                            <div class="mt-2 grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+                                <p><strong>Therm. Energie:</strong> ${q_therm_vergleich.toLocaleString('de-DE', {maximumFractionDigits: 0})} kWh</p>
+                                <p><strong>Elektr. Energie:</strong> ${p_el_vergleich.toLocaleString('de-DE', {maximumFractionDigits: 0})} kWh</p>
+                                <p><strong>Gesamt:</strong> ${gesamt_vergleich.toLocaleString('de-DE', {maximumFractionDigits: 0})} kWh</p>
+                            </div>
+                        </div>
+
+                        <details class="mt-6 text-sm no-print"><summary class="cursor-pointer font-semibold">Eingabeparameter für dieses Protokoll</summary>
+                            <div class="mt-2 p-4 bg-gray-50 rounded-lg border text-xs">
+                                <ul class="list-disc list-inside">
+                                    <li>Volumenstrom: ${inputs.volumenstrom} m³/h</li>
+                                    <li>Soll-Zulufttemperatur (Normal/Absenk): ${inputs.zuluftTemp}°C / ${inputs.zuluftTempAbsenk}°C</li>
+                                    <li>Heizgrenze: ${inputs.heizgrenze} °C</li>
+                                    <li>WRG aktiv: ${inputs.wrgAktiv ? `Ja, ${inputs.wrgWirkungsgrad * 100}%` : 'Nein'}</li>
+                                    <li>Ventilatorberechnung: ${inputs.ventilatorAktiv ? `Ja, SFP ${inputs.sfpWert}` : 'Nein'}</li>
+                                </ul>
+                            </div>
+                        </details>
+                        
+                        <details class="mt-2 text-sm no-print"><summary class="cursor-pointer font-semibold">Stündliches Berechnungsprotokoll</summary>
+                            <div class="mt-2 p-4 bg-gray-50 rounded-lg border max-h-64 overflow-y-auto">
+                                <table class="w-full text-xs"><thead class="sticky top-0 bg-gray-200"><tr><th>Zeitstempel</th><th>AT [°C]</th><th>Modus</th><th>Q_th [kWh]</th><th>P_el [kWh]</th></tr></thead>
+                                    <tbody>${hourlyCalcLog.map(log => `<tr><td>${log.timestamp}</td><td>${log.aussenTemp}</td><td>${log.betriebsmodus}</td><td>${log.q_therm}</td><td>${log.p_el}</td></tr>`).join('')}</tbody>
+                                </table>
+                            </div>
+                        </details>
+                    </div>
                 `;
             }
         });
